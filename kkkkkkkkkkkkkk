@@ -3,51 +3,6 @@ if getgenv().currentConnection then
     getgenv().currentConnection = nil
 end
 
-if getgenv().loop1 then
-    getgenv().loop1 = nil
-end
-
-if getgenv().loop2 then
-    getgenv().loop2 = nil
-end
-
-getgenv().oi = false
-
-task.spawn(function()
-    getgenv().loop1 = true
-    while getgenv().loop1 and task.wait() do
-        if game:GetService("CoreGui").DevConsoleMaster.DevConsoleWindow.DevConsoleUI:WaitForChild("MainView") then
-            if game:GetService("CoreGui").DevConsoleMaster.DevConsoleWindow.DevConsoleUI.MainView.UtilAndTab.UtilBar.SearchBar.InputField.TextBox.Text == "load" then
-                getgenv().oi = true
-                game:GetService("StarterGui"):SetCore("SendNotification",{Title = "kkkkkkkkkkkkkkkkk",Text = "Ativou o cheat fdp", Button1 = "Cancel lixo",Duration = 3})
-                break
-            end
-        end
-    end
-end)
-
-task.spawn(function()
-    getgenv().loop2 = true
-    while getgenv().loop2 and task.wait() do
-        if game:GetService("CoreGui").DevConsoleMaster.DevConsoleWindow.DevConsoleUI:WaitForChild("MainView") then
-            if game:GetService("CoreGui").DevConsoleMaster.DevConsoleWindow.DevConsoleUI.MainView.UtilAndTab.UtilBar.SearchBar.InputField.TextBox.Text == "unload" then
-                game:GetService("StarterGui"):SetCore("SendNotification",{Title = "Flw",Text = "Flw", Button1 = "Cancel lixo",Duration = 3})
-                getgenv().oi = false
-                
-                if getgenv().currentConnection then
-                    getgenv().currentConnection:Disconnect()
-                    getgenv().currentConnection = nil
-                end
-                
-                getgenv().loop1 = nil
-                getgenv().loop2 = nil
-                getgenv().oi = nil
-                break
-            end
-        end
-    end
-end)
-
 local toggle = false
 
 local UserInputService = game:GetService("UserInputService")
@@ -57,7 +12,6 @@ local Player = Players.LocalPlayer
 local function getClosestBall()
     local closestBall = nil
     local closestDistance = math.huge
-    local owner = nil
 
     for _, v in pairs(workspace.Balls:GetChildren()) do
         if v:IsA("Part") then
@@ -76,10 +30,6 @@ local function getClosestBall()
 end
 
 getgenv().currentConnection = UserInputService.InputBegan:Connect(function(input, gameProcessed)
-    if getgenv().oi ~= true then
-        return
-    end
-
     if gameProcessed then
         return
     end
@@ -87,10 +37,10 @@ getgenv().currentConnection = UserInputService.InputBegan:Connect(function(input
     if input.KeyCode == Enum.KeyCode.J then
         local ball = getClosestBall()
 
+        if ball then
             toggle = not toggle
 
             if toggle then
-                game:GetService("StarterGui"):SetCore("SendNotification",{Title = "Eita",Text = "Decline ativado", Duration = 1})
                 game.ReplicatedStorage.Event.MainFunction:InvokeServer(
                     "Ownership",
                     ball:GetAttribute("Index"),
@@ -98,13 +48,13 @@ getgenv().currentConnection = UserInputService.InputBegan:Connect(function(input
                     {}
                 )
             else
-                game:GetService("StarterGui"):SetCore("SendNotification",{Title = "Eita",Text = "Decline desativado", Duration = 1})
                 game.ReplicatedStorage.Event.MainFunction:InvokeServer(
                     "Ownership",
                     ball:GetAttribute("Index"),
                     {0, 0, 0},
                     {}
                 )
+            end
         end
     end
 end)
